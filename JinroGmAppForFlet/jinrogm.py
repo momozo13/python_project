@@ -83,8 +83,7 @@ def main(page: ft.Page):
         page.update()
 
     def close_dlg(dlg):
-        dlg.open = False
-        page.update()
+        page.pop_dialog()
 
     def judge_result() -> int:
         """0=継続, 1=村勝利, 2=人狼勝利"""
@@ -413,8 +412,7 @@ def main(page: ft.Page):
         def select(role: str):
             p.role = role
             p.exclude_from_village = (role == "人狼")
-            dlg.open = False
-            page.update()
+            page.pop_dialog()
             build_game_member_ui()
             page.update()
 
@@ -446,7 +444,7 @@ def main(page: ft.Page):
             ),
             actions=[ft.TextButton("閉じる", on_click=lambda e: close_dlg(dlg))],
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     # ===== ポップアップ: 処刑/占い/護衛/襲撃 選択 =====
     def open_selection_popup(title: str, rec: DayRecord, target_type: str):
@@ -485,8 +483,7 @@ def main(page: ft.Page):
                     setattr(rec, target_type, i)
                     if target_type == "syokei":
                         syokei_idx[0] = i
-                    dlg.open = False
-                    page.update()
+                    page.pop_dialog()
                     build_progress_ui()
                     page.update()
                     if target_type == "syokei":
@@ -511,8 +508,7 @@ def main(page: ft.Page):
             setattr(rec, target_type, None)
             if target_type == "syokei":
                 syokei_idx[0] = -1
-            dlg.open = False
-            page.update()
+            page.pop_dialog()
             build_progress_ui()
             page.update()
 
@@ -526,7 +522,7 @@ def main(page: ft.Page):
             ),
             actions=[ft.TextButton("閉じる", on_click=lambda e: close_dlg(dlg))],
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     # ===== ポップアップ: 追加死亡 =====
     def open_tsuika_popup(rec: DayRecord, slot: int):
@@ -546,8 +542,7 @@ def main(page: ft.Page):
                     while len(rec.tsuika) <= slot:
                         rec.tsuika.append(None)
                     rec.tsuika[slot] = i
-                    dlg.open = False
-                    page.update()
+                    page.pop_dialog()
                     build_progress_ui()
                     page.update()
                 return handler
@@ -564,8 +559,7 @@ def main(page: ft.Page):
             while len(rec.tsuika) <= slot:
                 rec.tsuika.append(None)
             rec.tsuika[slot] = None
-            dlg.open = False
-            page.update()
+            page.pop_dialog()
             build_progress_ui()
             page.update()
 
@@ -576,7 +570,7 @@ def main(page: ft.Page):
             content=ft.Column(options, spacing=6, scroll=ft.ScrollMode.AUTO, height=min(60 * len(options) + 40, 480)),
             actions=[ft.TextButton("閉じる", on_click=lambda e: close_dlg(dlg))],
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     # ===== 翌朝へ進む =====
     def confirm_next_day():
@@ -595,8 +589,7 @@ def main(page: ft.Page):
             return
 
         def do_next(e):
-            dlg.open = False
-            page.update()
+            page.pop_dialog()
             _execute_next_day(rec)
 
         dlg = ft.AlertDialog(
@@ -607,7 +600,7 @@ def main(page: ft.Page):
                 ft.ElevatedButton("進む", bgcolor=C.GREEN, color=C.TEXT, on_click=do_next),
             ],
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     def _execute_next_day(rec: DayRecord):
         # 処刑
@@ -686,7 +679,7 @@ def main(page: ft.Page):
             actions=[ft.TextButton("閉じる", on_click=lambda e: close_dlg(dlg))],
             bgcolor=C.SURFACE2,
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     def show_result_popup(title: str, detail: str = ""):
         dlg = ft.AlertDialog(
@@ -698,7 +691,7 @@ def main(page: ft.Page):
             ],
             bgcolor=C.SURFACE2,
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     # ===== ロジック: 登録/追加/削除 =====
     def register_member(e):
@@ -715,8 +708,7 @@ def main(page: ft.Page):
                 page.update()
                 return
             registered_members.append(Player(name))
-            dlg.open = False
-            page.update()
+            page.pop_dialog()
             build_registered_ui()
             page.update()
 
@@ -728,7 +720,7 @@ def main(page: ft.Page):
                 ft.ElevatedButton("追加", bgcolor=C.SECONDARY, color=C.TEXT, on_click=confirm),
             ],
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     def add_to_game(idx: int):
         if game_started[0]:
@@ -826,8 +818,7 @@ def main(page: ft.Page):
             return
 
         def do_start(e):
-            dlg.open = False
-            page.update()
+            page.pop_dialog()
             game_started[0] = True
             day_no[0] = 1
             # ゲーム開始時のお告げ済みを占い履歴に登録
@@ -849,14 +840,13 @@ def main(page: ft.Page):
                 ft.ElevatedButton("開始", bgcolor=C.GREEN, color=C.TEXT, on_click=do_start),
             ],
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     # ===== ロジック: リセット =====
     def reset_game(e):
         """ゲーム進行をリセット（メンバー・役職は保持）"""
         def do_reset(e):
-            dlg.open = False
-            page.update()
+            page.pop_dialog()
             game_started[0] = False
             day_no[0] = 0
             goei_no[0] = -1
@@ -879,13 +869,12 @@ def main(page: ft.Page):
                 ft.ElevatedButton("リセット", bgcolor=C.ORANGE, color=C.TEXT, on_click=do_reset),
             ],
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     def reset_members(e):
         """ゲームメンバーのみリセット"""
         def do_reset(e):
-            dlg.open = False
-            page.update()
+            page.pop_dialog()
             game_started[0] = False
             day_no[0] = 0
             goei_no[0] = -1
@@ -906,13 +895,12 @@ def main(page: ft.Page):
                 ft.ElevatedButton("リセット", bgcolor=C.ORANGE, color=C.TEXT, on_click=do_reset),
             ],
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     def full_reset(e):
         """全データをリセット"""
         def do_reset(e):
-            dlg.open = False
-            page.update()
+            page.pop_dialog()
             game_started[0] = False
             day_no[0] = 0
             goei_no[0] = -1
@@ -935,7 +923,7 @@ def main(page: ft.Page):
                 ft.ElevatedButton("全リセット", bgcolor=C.ACCENT, color=C.TEXT, on_click=do_reset),
             ],
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
 
     # ===== レイアウト構築 =====
 
